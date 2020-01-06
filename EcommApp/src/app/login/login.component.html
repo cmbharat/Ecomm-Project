@@ -1,0 +1,17 @@
+<div class="login-page">
+        <h2>Login Form</h2>
+    <div class="form">
+        
+        <form [formGroup]="form" (ngSubmit)="login()">
+            <div class="form-group">
+                <input type="text" formControlName="emailId" id="emailId" placeholder="Email">
+            
+                <input type="password" formControlName="password" placeholder="Password">
+
+                <button class="btn btn-primary"  (click)="login()" [disabled]="!form.valid">Login</button>
+                <p class="message">Not registered? <a href="/register">Create an account</a></p>
+                <p class="message">Forgot Password? <a href="/forgot">Reset Password</a></p>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="login-page">
+        <h2>Registration Form</h2>
+    <div class="form">
+        
+        <form [formGroup]="reg_form" (ngSubmit)="register()">
+            <div class="form-group">
+                <input type="text" formControlName="username" id="username" placeholder="User Name">
+                <div *ngIf="username.touched && username.invalid" class="error">
+                    Invalid Username
+                </div>
+                <input type="text" formControlName="emailId" id="emailId" placeholder="Email">
+                <div *ngIf="emailId.touched && emailId.invalid" class="error">
+                        Invalid emailId
+                </div>
+                <input type="password" formControlName="password" placeholder="Password">
+                <div *ngIf="password.touched && password.invalid" class="error">
+                        Invalid password
+                </div>
+                <input type="text" formControlName="mobile" id="mobile" placeholder="Mobile">
+                <div *ngIf="mobile.touched && mobile.invalid" class="error">
+                        Invalid Mobile
+                </div>
+                <button class="btn btn-primary" type="submit" [disabled]="!reg_form.valid">Register</button>
+                <p class="message">Already have Account? <a href="/login">Login</a></p>
+            </div>
+        </form>
+    </div>
+</div>
