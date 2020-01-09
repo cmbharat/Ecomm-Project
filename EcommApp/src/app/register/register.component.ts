@@ -9,7 +9,7 @@ import { UserService } from '../user.service';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-
+  user={};
   reg_response;
   reg_form = new FormGroup({
 
@@ -38,7 +38,18 @@ export class RegisterComponent implements OnInit {
   register() {
 
     console.log("inside register");
-    this.userService.registerUser(this.reg_form.value).subscribe(
+    console.log(this.reg_form.value);
+     
+    this.user={
+      "userId":this.userid(4),
+      "userName":this.reg_form.value.username,
+      "mobile":this.reg_form.value.mobile,
+      "emailId":this.reg_form.value.emailId,
+      "password":this.reg_form.value.password
+    }
+
+    console.log(this.user);
+     this.userService.registerUser(this.user).subscribe(
       (response) => {
          this.reg_response= response;
          if(this.reg_response.status){
@@ -67,5 +78,17 @@ export class RegisterComponent implements OnInit {
   }
   get password() {
     return this.reg_form.get('password');
+  }
+
+  userid(length) {
+    var result = '';
+    var characters = '0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    var resultInt=parseInt(result);
+    return resultInt;
   }
 }

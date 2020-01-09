@@ -95,21 +95,22 @@ exports.loginUser = function (req, res){
 }
 
 
-exports.registerUser = function (req, res) {
-    console.log(req.body);
-    var userId = req.body.userId;
-    var userName = req.body.userName;
-    var mobile = req.body.mobile;
-    var emailId = req.body.emailId;
-    var password = req.body.password;
+exports.registerUser = function (request, res) {
+    console.log(request.body);
+    console.log("inside register user");
+    var userId =request.body.userId;
+    var userName = request.body.userName;
+    var mobile = request.body.mobile;
+    var emailId = request.body.emailId;
+    var password = request.body.password;
     var newUser = new User({
         userId: userId,
         userName: userName,
         emailId: emailId,
         password: password,
-        mobileNumber: mobile
+        mobile: mobile
     });
-    console.log(newUser)
+    console.log(newUser);
     User.findOne({ emailId: emailId }, function (err, event) {
         if (err) {
             res.send({status : false, message:"Error occured while finding if email exists", err});
@@ -134,6 +135,17 @@ exports.registerUser = function (req, res) {
     });
 }
 
+// function getValueForNextSequence(sequenceOfName){
+    
+//     console.log("inside get sequence value");
+//          var sequenceDoc = db.Counter.findAndModify({
+//           query:{_id: sequenceOfName },
+//           update: {$inc:{sequence_value:1}},
+//           new:true
+//         });
+    
+//          return sequenceDoc.sequence_value;
+//  }
+    
 
 // module.exports = router;
-

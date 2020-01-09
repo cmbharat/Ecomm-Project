@@ -11,6 +11,7 @@ export class UserService {
 
 
   registerUser(user) {
+    console.log("inside registeruser"+user);
     return this.httpClient.post(this.baseurl + "register", user);
   }
 
