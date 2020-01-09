@@ -7,7 +7,6 @@ import { CareersComponent } from './careers/careers.component';
 import { LogoutComponent } from './logout/logout.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
-import { HomepageComponent } from './homepage/homepage.component';
 
 
 const routes: Routes = [
@@ -17,28 +16,32 @@ component:LoginComponent
 },
 
 {
-  path:"home",
-  component:HomepageComponent
+  path:"main",
+  component:MainPageComponent
 },
 {
   path:"register",
   component:RegisterComponent
 },
 {
-  path:"careers",
+  path:"main/careers",
   component:CareersComponent
 },
 {
-  path:"logout",
+  path:"main/logout",
   component:LogoutComponent
 },
 {
-  path:"profile",
+  path:"main/profile",
   component:ProfileComponent
 },
 {
-  path:"forgot",
+  path:"main/forgot",
   component:ForgotPasswordComponent
+},
+{
+  path:"",
+  component:LoginComponent
 }
 ];
 
