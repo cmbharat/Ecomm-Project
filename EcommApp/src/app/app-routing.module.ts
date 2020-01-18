@@ -7,17 +7,24 @@ import { CareersComponent } from './careers/careers.component';
 import { LogoutComponent } from './logout/logout.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
-
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
-{
+  {
+    path:"",
+    redirectTo:"/login",
+    pathMatch:'full'
+  },
+
+  {
 path:"login",
 component:LoginComponent
 },
 
 {
   path:"main",
-  component:MainPageComponent
+  component:MainPageComponent,
+  
 },
 {
   path:"register",
@@ -25,7 +32,9 @@ component:LoginComponent
 },
 {
   path:"main/careers",
-  component:CareersComponent
+  component:CareersComponent,
+  canActivate:[AuthGuard]
+
 },
 {
   path:"main/logout",
@@ -40,9 +49,10 @@ component:LoginComponent
   component:ForgotPasswordComponent
 },
 {
-  path:"",
-  component:LoginComponent
+  path:"forgot",
+  component:ForgotPasswordComponent
 }
+
 ];
 
 @NgModule({

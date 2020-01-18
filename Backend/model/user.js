@@ -3,11 +3,11 @@ var schema=mongoose.Schema;
 
 var UserSchema=new schema({
 
-    userId:{
-        type:Number,
-        unique : true,
-        index : true
-    },
+    // userId:{
+    //     type:Number,
+    //     unique : true,
+    //     index : true
+    // },
     userName:{
         type:String
     },

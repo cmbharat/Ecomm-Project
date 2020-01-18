@@ -26,22 +26,19 @@ export class LoginComponent  {
     return this.form.get('password');
   }
   login() {
-
+    console.log(this.form.value);
     console.log("inside login form");
     this.userService.authenticate(this.form.value).subscribe(
-      (response) => {
+      response => {
          this.loginResponse= response;
-         if(this.loginResponse.status){
-           console.log("login success");
-           this.router.navigateByUrl('main');
-           this.form.reset();
-         }
-         else
-         {
-           console.log("login failed");
-           this.form.reset();
-         }
          
+           console.log("login success");
+           localStorage.setItem('token',this.loginResponse.token);
+           this.router.navigateByUrl('main');
+           this.form.reset();         
+      },
+      error => {
+        console.log(error);
       }
     )
   }

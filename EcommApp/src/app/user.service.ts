@@ -16,6 +16,20 @@ export class UserService {
   }
 
   authenticate(user) {
+    console.log("inside login Authentication "+user.emailId);
     return this.httpClient.post(this.baseurl + "login", user);
+  }
+
+  careers(){
+    console.log("inside careers");
+    return this.httpClient.get(this.baseurl+"career");
+  }
+
+  loggedIn(){
+    return !!localStorage.getItem('token');
+  }
+
+  getToken(){
+    return localStorage.getItem('token');
   }
 }

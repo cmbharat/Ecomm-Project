@@ -41,7 +41,7 @@ export class RegisterComponent implements OnInit {
     console.log(this.reg_form.value);
      
     this.user={
-      "userId":this.userid(4),
+      // "userId":this.userid(4),
       "userName":this.reg_form.value.username,
       "mobile":this.reg_form.value.mobile,
       "emailId":this.reg_form.value.emailId,
@@ -50,18 +50,13 @@ export class RegisterComponent implements OnInit {
 
     console.log(this.user);
      this.userService.registerUser(this.user).subscribe(
-      (response) => {
-         this.reg_response= response;
-         if(this.reg_response.status){
+      (res) => {
+         this.reg_response= res;
+         localStorage.setItem('token',this.reg_response.token);
+         
            console.log("registration success");
            this.router.navigateByUrl('login');
            this.reg_form.reset();
-         }
-         else
-         {
-           console.log("login failed");
-           this.reg_form.reset();
-         }
          
       }
     )
@@ -80,15 +75,15 @@ export class RegisterComponent implements OnInit {
     return this.reg_form.get('password');
   }
 
-  userid(length) {
-    var result = '';
-    var characters = '0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
+  // userid(length) {
+  //   var result = '';
+  //   var characters = '0123456789';
+  //   var charactersLength = characters.length;
+  //   for (var i = 0; i < length; i++) {
+  //     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  //   }
 
-    var resultInt=parseInt(result);
-    return resultInt;
-  }
+  //   var resultInt=parseInt(result);
+  //   return resultInt;
+  // }
 }

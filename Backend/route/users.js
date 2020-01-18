@@ -1,128 +1,106 @@
+//import * as bcrypt from 'bcryptjs';
+
+
 const express = require('express');
 const app = express();
 const body_parser = require('body-parser');
+const jwt=require('jsonwebtoken');
+
 var User = require('../model/user');
+var Career=require('../model/Careers');
 var router = express.Router();
+var mongoose = require('mongoose');
+const bcrypt=require('bcryptjs')
+var saltRounds=10
+var encryptedPassword="";
 
 app.use(body_parser.urlencoded({ extended: false }))
 app.use(body_parser.json());
 
-router.post('/addUser', (req, res) => {
-    var newUser = new User(req.body);
-    newUser.save((err, user) => {
+mongoose.connect("mongodb://localhost/userInfo", err=>{
+   if(err) 
+   {
+       console.error(err);
+    }
+   else{
+    console.log("db started");
+   }
+});
 
-        if (err) {
-            res.send({ "message": "error occured" });
-        }
-        if (user) {
-            res.send({ "message": "user added" });
-        }
-    })
-})
+function verifyToken(req,res,next)
+{
 
-router.get('/getUsers', (req, res) => {
-    console.log("inside getUsers");
-    User.find({}, (err, users) => {
-        if (err) {
-            res.send({ "message": err.message });
-        } else {
-            res.send(users);
-        }
-    })
-})
+    console.log("inside verify Token "+req.headers.authorization.split('')[1]);
+    if(!req.headers.authorization)
+    {
+        console.log("inside verify Token if--1");
+        return res.status(401).send('Unauthorized Request');
+    }
+    let token=req.headers.authorization.split(' ')[1];
+     
+    if(token=='null')
+    {
+        console.log("inside verify Token if--2");
+        return res.status(401).send('Unauthorized Request');
+    }
+    let payload=jwt.verify(token,'secretKey')
+     
+    if(!payload)
+    {
+        console.log("inside verify Token if--3");
+        return res.status(401).send('Unauthorized Request')  
+    }
 
-router.delete('/deleteUser/:userId', (req, res) => {
+    req.userId=payload.subject;
+    console.log("userid",req.userId);
+    next()
 
-    var id = req.params.userId;
-
-    User.find({ userId: id }, function (err, doc) {
-        if (err) {
-            res.send({ "message": err.message });
-
-        }
-        else {
-            User.remove({ userId: id }, function (err) {
-                if (err) {
-                    console.log(err);
-                    return response.send({ status: false });
-                }
-                else {
-                    return response.send({ status: true });
-                }
-
-            })
-        }
-    })
-
-})
-
-router.put('/updateUser/:userId', (req, res) => {
-    var id = req.params.userId;
-
-    User.update({ userId: id }, req.body, (err, raw) => {
-        if (err) {
-            console.log(err);
-            res.send({ status: false })
-        }
-        else {
-            res.send({ status: true });
-        }
-    })
+    
 }
-)
+///Authentication code
+router.get('/',(req,res)=>{
+    res.send("from api route");
+})
 
-exports.loginUser = function (req, res){
-    var emailId = req.body.emailId;
-    var password = req.body.password;
-    User.findOne({emailId : emailId}, function (err, obj) {
-       if(err){
-           res.send({status: false, message: "error occured while procesing login request"});
-           console.log(err);
-       } else {
-           if(obj == null){
-               res.send({status : false, message : "User not registered"});
-           } else {
-               if(obj.password == password){
-                   res.send({status : true, message : "login successful", obj});
-                   console.log(obj);
-               } else {
-                   res.send({status : false, message : "Incorrect password"});
-                   console.log(obj);
-               }
-           }
-       }
-    });
-}
+router.post('/register',(req,res)=>{
+    
+    let userData=req.body;
+    var user={};
+    console.log(userData.password);
+    bcrypt.hash(userData.password,saltRounds,(err,hash)=>{
+        if(!err){
+            console.log("inside hashing method"+hash);
+            encryptedPassword=hash;
+            userData.password=encryptedPassword;       
+            user=new User(userData);     
+            console.log("user password"+user.password);
+        }
+        else{
+            console.log('Error: ',err)
+        }
+        })
+    console.log("password after encryption : "+userData.password);
+    
 
+    User.findOne({ emailId: req.body.emailId }, function (err, event) {
 
-exports.registerUser = function (request, res) {
-    console.log(request.body);
-    console.log("inside register user");
-    var userId =request.body.userId;
-    var userName = request.body.userName;
-    var mobile = request.body.mobile;
-    var emailId = request.body.emailId;
-    var password = request.body.password;
-    var newUser = new User({
-        userId: userId,
-        userName: userName,
-        emailId: emailId,
-        password: password,
-        mobile: mobile
-    });
-    console.log(newUser);
-    User.findOne({ emailId: emailId }, function (err, event) {
-        if (err) {
-            res.send({status : false, message:"Error occured while finding if email exists", err});
-            console.error(err);
+        if(err)
+        {
+          console.log(err);
+          res.send({status : false, message:"Error occured while finding if email exists", err});
         }
         else {
             if (event == null) {
-                newUser.save(function (err1, result) {
+                user.save(function (err1, result) {
                     if (err1) {
+                        console.log("inside register user ");
+                        
                         res.send({ status: false, message: "Registration failed", err1 });
                         console.error(err1);
                     } else {
+                        let payload={subject:result._id};
+                        let token=jwt.sign(payload,'secretKey');
+                        res.status(200).send({token});
                         res.send({ status: true, message: "Registration successful", result });
                         console.log(result);
                     }
@@ -131,9 +109,129 @@ exports.registerUser = function (request, res) {
                 res.send({ status: false, message: "Email already exists:", event });
                 console.log("email already exists:" + event);
             }
+         }
+
+    })
+
+    // user.save((err,registeredUser)=>{
+    //     if(err)
+    //     {
+    //       console.log(err);
+          
+    //     }else{
+    //       console.log("inside register user ");
+    //       let payload={subject:registeredUser._id};
+    //       let token=jwt.sign(payload,'secretKey');
+    //       res.status(200).send({token});
+    //     }
+    // })
+
+
+})
+
+
+router.post('/login',(req,res)=>{
+
+    let userData=req.body;
+    
+    User.findOne({emailId:userData.emailId},(error,user)=>{
+  
+        if(error){
+            res.status(401).send('invalid Email');
         }
+        
+        else{
+            
+            console.log(userData.password);
+            //console.log(user.password);
+            
+            if(!user)
+            {
+                res.status(401).send('invalid Email');
+            }
+            else{
+                let result;
+                bcrypt.compare(userData.password,user.password ,(err,res)=>{
+
+                    if(!err){
+                        console.log('password correct: ',res)
+                        result=res;
+    
+                    }else{
+                        console.log("error",err);
+                    }
+                });
+
+             if(result)
+            {
+                res.status(401).send('invalid password');
+            }
+            else
+            {
+                let payload={subject:user._id};
+                let token=jwt.sign(payload,'secretKey');
+                res.status(200).send({token});
+            }}
+        }
+
     });
-}
+})
+
+
+///Authentication code ends
+
+//career api//
+router.get("/career",verifyToken,(req,res)=>{
+    let Careers=new Career({
+                JobDesc: "Full Stack Development",
+                JobID:   12,
+                Country: "India",
+                Location: "Bangalore"
+            });
+    res.json({"Careers": Careers});
+})
+
+
+
+// exports.registerUser = function (request, res) {
+//     console.log(request.body);
+//     console.log("inside register user");
+//     var userId =request.body.userId;
+//     var userName = request.body.userName;
+//     var mobile = request.body.mobile;
+//     var emailId = request.body.emailId;
+//     var password = request.body.password;
+//     var newUser = new User({
+//         userId: userId,
+//         userName: userName,
+//         emailId: emailId,
+//         password: password,
+//         mobile: mobile
+//     });
+//     console.log(newUser);
+    // User.findOne({ emailId: emailId }, function (err, event) {
+    //     if (err) {
+    //         res.send({status : false, message:"Error occured while finding if email exists", err});
+    //         console.error(err);
+    //     }
+        // else {
+        //     if (event == null) {
+        //         newUser.save(function (err1, result) {
+        //             if (err1) {
+        //                 res.send({ status: false, message: "Registration failed", err1 });
+        //                 console.error(err1);
+        //             } else {
+        //                 res.send({ status: true, message: "Registration successful", result });
+        //                 console.log(result);
+        //             }
+        //         });
+        //     } else {
+        //         res.send({ status: false, message: "Email already exists:", event });
+        //         console.log("email already exists:" + event);
+        //     }
+        //  }
+    //  });
+// }
 
 // function getValueForNextSequence(sequenceOfName){
     
@@ -148,4 +246,4 @@ exports.registerUser = function (request, res) {
 //  }
     
 
-// module.exports = router;
+module.exports = router;
